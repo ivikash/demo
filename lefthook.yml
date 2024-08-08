@@ -1,0 +1,23 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint-python:
+      run: poe lint_fix && poe lint_types && poe lint_docstring && poe lint_format
+
+    lint-security:
+      run: poe lint_security_analysis
+
+    poetry-check:
+      glob: "pyproject.toml"
+      run: poetry check
+
+    poetry-sort:
+      glob: "pyproject.toml"
+      run: poetry sort
+      stage_fixed: true
+
+    scan-git-secrets:
+      run: git secrets --scan
+
+    test:
+      run: poe test

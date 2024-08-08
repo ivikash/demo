@@ -1,0 +1,14 @@
+# Poetry Configuration File
+[virtualenvs]
+# Whether to create virtual environments for projects.
+# When set to true, Poetry will create a virtual environment for each project to isolate dependencies.
+create = true
+
+# Whether to create the virtual environment inside the project directory.
+# When set to true, the virtual environment will be located in the project's root directory, named '.venv'.
+in-project = true
+
+# Path where the virtual environment will be created.
+# This option is used in conjunction with `in-project` and specifies the location of the virtual environment.
+# When `in-project` is set to true, this path is relative to the project directory.
+path = "."
