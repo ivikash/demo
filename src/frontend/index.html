@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048 Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #faf8ef;
+        }
+        .game-container {
+            width: 400px;
+            padding: 20px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            background-color: #bbada0;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .cell {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(238, 228, 218, 0.35);
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .score {
+            text-align: center;
+            font-size: 24px;
+            margin: 20px 0;
+        }
+        .game-over {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(238, 228, 218, 0.73);
+            padding: 20px;
+            border-radius: 6px;
+            text-align: center;
+            display: none;
+        }
+        .new-game {
+            padding: 10px 20px;
+            background-color: #8f7a66;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .new-game:hover {
+            background-color: #7f6a56;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <button class="new-game" onclick="startNewGame()">New Game</button>
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="grid" id="grid"></div>
+    </div>
+    <div class="game-over" id="gameOver">
+        <h2>Game Over!</h2>
+        <p>Your score: <span id="finalScore">0</span></p>
+        <button class="new-game" onclick="startNewGame()">Try Again</button>
+    </div>
+
+    <script>
+        let gameId = null;
+        const API_URL = 'https://localhost:6226';
+
+        async function startNewGame() {
+            try {
+                const response = await fetch(`${API_URL}/game/new`, {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                gameId = data.game_id;
+                updateBoard(data.state);
+                document.getElementById('gameOver').style.display = 'none';
+            } catch (error) {
+                console.error('Error starting new game:', error);
+            }
+        }
+
+        async function makeMove(direction) {
+            if (!gameId) return;
+
+            try {
+                const response = await fetch(`${API_URL}/game/move`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        direction: direction,
+                        game_id: gameId
+                    })
+                });
+                const data = await response.json();
+                updateBoard(data.state);
+            } catch (error) {
+                console.error('Error making move:', error);
+            }
+        }
+
+        function updateBoard(state) {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            
+            state.board.forEach(row => {
+                row.forEach(value => {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.textContent = value || '';
+                    if (value) {
+                        cell.style.backgroundColor = getCellColor(value);
+                        cell.style.color = value <= 4 ? '#776e65' : '#f9f6f2';
+                    }
+                    grid.appendChild(cell);
+                });
+            });
+
+            document.getElementById('score').textContent = state.score;
+            
+            if (state.game_over) {
+                document.getElementById('gameOver').style.display = 'block';
+                document.getElementById('finalScore').textContent = state.score;
+            }
+        }
+
+        function getCellColor(value) {
+            const colors = {
+                2: '#eee4da',
+                4: '#ede0c8',
+                8: '#f2b179',
+                16: '#f59563',
+                32: '#f67c5f',
+                64: '#f65e3b',
+                128: '#edcf72',
+                256: '#edcc61',
+                512: '#edc850',
+                1024: '#edc53f',
+                2048: '#edc22e'
+            };
+            return colors[value] || '#3c3a32';
+        }
+
+        document.addEventListener('keydown', (event) => {
+            const keyToDirection = {
+                'ArrowUp': 'up',
+                'ArrowDown': 'down',
+                'ArrowLeft': 'left',
+                'ArrowRight': 'right'
+            };
+            
+            if (keyToDirection[event.key]) {
+                event.preventDefault();
+                makeMove(keyToDirection[event.key]);
+            }
+        });
+
+        // Start a new game when the page loads
+        startNewGame();
+    </script>
+</body>
+</html>
