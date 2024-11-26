@@ -1652,6 +1652,17 @@ files = [
 full = ["numpy"]
 
 [[package]]
+name = "readchar"
+version = "4.2.1"
+description = "Library to easily read single chars and key strokes"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "readchar-4.2.1-py3-none-any.whl", hash = "sha256:a769305cd3994bb5fa2764aa4073452dc105a4ec39068ffe6efd3c20c60acc77"},
+    {file = "readchar-4.2.1.tar.gz", hash = "sha256:91ce3faf07688de14d800592951e5575e9c7a3213738ed01d394dcc949b79adb"},
+]
+
+[[package]]
 name = "requests"
 version = "2.32.3"
 description = "Python HTTP for Humans."
@@ -2063,4 +2074,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "bb2fa37cd75fb8e6cd788bfd08f96f4fa36701d113b0ddedfe968315907c3d25"
+content-hash = "aca4f75f207c8edbc423f47fa044994f2819632bd686c6e6f510feda55cd5658"
