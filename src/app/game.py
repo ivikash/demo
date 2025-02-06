@@ -1,5 +1,8 @@
 """2048 game logic implementation."""
 import random
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class Game2048:
@@ -7,6 +10,7 @@ class Game2048:
         self.size = size
         self.score = 0
         self.board = [[0 for _ in range(size)] for _ in range(size)]
+        logger.info(f"Initializing new game with size {size}x{size}")
         self.add_new_tile()
         self.add_new_tile()
     
@@ -16,14 +20,18 @@ class Game2048:
             (i, j) for i in range(self.size) 
             for j in range(self.size) if self.board[i][j] == 0
         ]
+        logger.debug(f"Found {len(empty_cells)} empty cells for new tile")
         if empty_cells:
             i, j = random.choice(empty_cells)
-            self.board[i][j] = 2 if random.random() < 0.9 else 4
+            value = 2 if random.random() < 0.9 else 4
+            self.board[i][j] = value
+            logger.debug(f"Added new tile with value {value} at position ({i}, {j})")
 
     def is_game_over(self) -> bool:
         """Check if no moves are possible."""
         # Check for empty cells
         if any(0 in row for row in self.board):
+            logger.debug("Game not over - empty cells exist")
             return False
         
         # Check for possible merges horizontally
@@ -44,7 +52,9 @@ class Game2048:
         """Move tiles in the specified direction and merge if possible."""
         valid_directions = {'up', 'down', 'left', 'right'}
         if direction not in valid_directions:
+            logger.error(f"Invalid move direction attempted: {direction}")
             raise ValueError(f"Invalid direction. Must be one of {valid_directions}")
+        logger.debug(f"Processing move: {direction}")
 
         # Store the initial state
         initial_state = [row[:] for row in self.board]
@@ -77,6 +87,10 @@ class Game2048:
         if moved:
             self.add_new_tile()
 
+        if not moved:
+            logger.debug("No valid move - board unchanged")
+        else:
+            logger.debug("Board changed after move")
         return moved
 
     def _merge_row(self, row: list[int]) -> list[int]:
@@ -98,6 +112,7 @@ class Game2048:
 
     def get_state(self) -> dict:
         """Return the current game state."""
+        logger.debug(f"Current game state - Score: {self.score}")
         return {
             "board": self.board,
             "score": self.score,
